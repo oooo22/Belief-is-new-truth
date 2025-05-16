@@ -17,26 +17,50 @@
       min-height: 100vh;
       margin: 0;
     }
-    h2 { font-size: 28px; color: #6a4fb3; margin-bottom: 10px; }
-    p { font-size: 18px; color: #8e7cc3; margin-bottom: 30px; }
+
+    h2 {
+      font-size: 28px;
+      color: #6a4fb3;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 18px;
+      color: #8e7cc3;
+      margin-bottom: 30px;
+    }
+
     .button-group {
-      display: flex; gap: 20px; flex-wrap: wrap;
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
     }
+
     button {
-      font-size: 18px; padding: 12px 24px;
-      border: none; border-radius: 14px;
+      font-size: 18px;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 14px;
       background: linear-gradient(145deg, #f5d9ff, #ffeec9);
-      color: #4b3b7c; cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      color: #4b3b7c;
       transition: all 0.2s ease;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
+
     button:hover {
       background: linear-gradient(145deg, #ead0ff, #fff0b2);
       transform: scale(1.05);
     }
-    button:active { transform: scale(0.97); }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
     @media (max-width: 500px) {
-      button { width: 100%; }
+      button {
+        width: 100%;
+      }
       .button-group {
         flex-direction: column;
         gap: 12px;
@@ -47,8 +71,8 @@
   </style>
 </head>
 <body>
-  <h2>LOOP 🎧</h2>
-  <p>กดค้างเพื่อพูด → ปล่อยเพื่อให้เสียงวนและก้องมากขึ้น</p>
+  <h2>LOOP🎧</h2>
+  <p>กดค้างเพื่อพูด</p>
 
   <div class="button-group">
     <button id="startBtn">🎤 START</button>
@@ -56,8 +80,15 @@
   </div>
 
   <script>
-    let audioCtx, micStream, micSource, delayNode, feedbackGain, recorder;
-    let recordedChunks = [], loopSource, loopInterval;
+    let audioCtx;
+    let micStream;
+    let micSource;
+    let delayNode;
+    let feedbackGain;
+    let recorder;
+    let recordedChunks = [];
+    let loopSource;
+    let loopInterval;
 
     const startBtn = document.getElementById('startBtn');
     const stopBtn = document.getElementById('stopBtn');
@@ -66,24 +97,22 @@
       if (!audioCtx) {
         audioCtx = new AudioContext();
 
-        delayNode = audioCtx.createDelay(5.0);  // เพิ่มความยาวของ echo
-        delayNode.delayTime.value = 1.5;
+        delayNode = audioCtx.createDelay(5.0); // เพิ่มระยะสะท้อน
+        delayNode.delayTime.value = 2.5;       // เริ่มด้วยความล่าช้า 2.5s
 
         feedbackGain = audioCtx.createGain();
-        feedbackGain.gain.value = 0.5;  // เริ่มก้องมากขึ้น
+        feedbackGain.gain.value = 0.5;         // เริ่มก้องสูงขึ้น
 
-        // วน loop feedback
         delayNode.connect(feedbackGain);
         feedbackGain.connect(delayNode);
         delayNode.connect(audioCtx.destination);
 
-        // เพิ่ม feedback ต่อเนื่อง
         loopInterval = setInterval(() => {
-          if (feedbackGain.gain.value < 0.98) {
-            feedbackGain.gain.value += 0.03;
+          if (feedbackGain.gain.value < 1.5) {
+            feedbackGain.gain.value += 0.05;
             console.log("เพิ่มความก้อง:", feedbackGain.gain.value.toFixed(2));
           }
-        }, 2000);
+        }, 4000);
       }
     }
 
@@ -97,8 +126,8 @@
       const loopGain = audioCtx.createGain();
       loopGain.gain.value = 1.0;
 
-      loopSource.connect(delayNode); // ป้อนเข้า feedback
-      loopSource.connect(loopGain).connect(audioCtx.destination); // ส่งออกตรงด้วย
+      loopSource.connect(delayNode);
+      loopSource.connect(loopGain).connect(audioCtx.destination);
       loopSource.start(0);
     }
 
